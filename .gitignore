@@ -1,0 +1,23 @@
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Dependency and package-manager folders
+node_modules/
+.npm/
+.pnpm-store/
+
+# Supabase local state
+.supabase/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050706">
+  <meta name="description" content="Sign in to Form & Function to manage your workout reminders.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/app-icon.svg" type="image/svg+xml">
+  <title>Sign in — Form &amp; Function</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --paper: #050706;
+      --panel: #15131b;
+      --muted: #aaa4b3;
+      --pink: #f0a3ed;
+      --lime: #d3ef75;
+    }
+    * { box-sizing: border-box; }
+    html { min-height: 100%; background: var(--paper); }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 32px 20px; background-color: var(--paper); background-image: linear-gradient(135deg, rgba(5,7,6,.34), rgba(10,7,13,.48)), url("assets/login-athlete-background.png"); background-position: center 42%; background-size: cover; background-attachment: fixed; color: #f5f0f8; }
+    button, input { font: inherit; }
+    a, button { -webkit-tap-highlight-color: transparent; }
+    a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .auth-shell { position: relative; width: min(1120px, 100%); padding-bottom: 58px; }
+    .auth-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 17px; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; color: #f5f7f3; font-size: 15px; font-weight: 800; letter-spacing: -.5px; text-decoration: none; }
+    .brand-mark { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 11px; background: var(--lime); color: #10150b; }
+    .brand-mark svg { width: 20px; height: 20px; }
+    .brand em { color: var(--lime); font-style: normal; }
+    .back-link { position: absolute; z-index: 4; right: 20px; bottom: 11px; display: inline-flex; min-height: 50px; align-items: center; justify-content: center; padding: 12px 26px; border: 1px solid rgba(255,255,255,.22); border-radius: 22px 22px 18px 18px; background: rgba(10,10,20,.82); box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 8px 18px rgba(0,0,0,.35); color: #e8e3ed; font-size: 13px; text-decoration: none; -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+    .back-link:hover { color: var(--pink); }
+    .login-card { display: grid; min-height: 590px; grid-template-columns: minmax(350px, .87fr) minmax(0, 1.13fr); overflow: hidden; border: 1px solid rgba(255,255,255,.2); border-radius: 22px; background: rgba(18,16,22,.48); box-shadow: 16px 18px 42px rgba(0,0,0,.4), -5px -5px 16px rgba(255,255,255,.08); -webkit-backdrop-filter: blur(22px) saturate(135%); backdrop-filter: blur(22px) saturate(135%); }
+    .auth-panel { display: flex; flex-direction: column; justify-content: center; padding: clamp(32px, 5vw, 65px); background: linear-gradient(145deg, rgba(29,26,38,.78), rgba(17,16,22,.68) 72%); }
+    .auth-kicker { margin: 0 0 8px; color: var(--pink); font-size: 11px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; }
+    .auth-panel h1 { margin: 0; color: #faf6fb; font-size: clamp(31px, 4vw, 42px); letter-spacing: -1.3px; line-height: 1.1; }
+    .auth-intro { margin: 10px 0 25px; color: #bdb6c4; font-size: 14px; line-height: 1.65; }
+    .auth-status { margin: 0 0 18px; padding: 11px 12px; border: 1px solid rgba(240,163,237,.25); border-radius: 9px; background: rgba(240,163,237,.08); color: #f4dff3; font-size: 13px; line-height: 1.5; }
+    .auth-status[data-kind="error"] { border-color: rgba(255,154,135,.4); background: rgba(144,83,56,.15); color: #ffd1c2; }
+    .auth-status[data-kind="success"] { border-color: rgba(211,239,117,.3); background: rgba(211,239,117,.08); color: #e8f4c4; }
+    .auth-status[hidden] { display: none; }
+    .auth-view[hidden] { display: none; }
+    .auth-form { display: grid; gap: 15px; }
+    .field { display: grid; gap: 7px; color: #e9e3ed; font-size: 13px; font-weight: 700; }
+    .field input { width: 100%; min-height: 45px; padding: 11px 13px; border: 1px solid rgba(255,255,255,.12); border-radius: 8px; background: #0e0d12; color: #fff; font-size: 15px; }
+    .field input::placeholder { color: #817a89; }
+    .password-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .remember-option { display: inline-flex; align-items: center; gap: 8px; color: #c9c2d0; font-size: 12px; font-weight: 500; }
+    .remember-option input, .setting-choice input { accent-color: var(--pink); }
+    .text-button { padding: 0; border: 0; background: none; color: var(--pink); font-size: 12px; font-weight: 700; cursor: pointer; }
+    .text-button:hover { color: #ffd2fa; }
+    .primary-button { min-height: 46px; padding: 12px 16px; border: 0; border-radius: 8px; background: linear-gradient(130deg, #e68be7, #9c67d6); color: #180e1c; font-size: 14px; font-weight: 800; cursor: pointer; box-shadow: 0 7px 18px rgba(156,103,214,.22); }
+    .primary-button:hover { filter: brightness(1.08); }
+    .primary-button:disabled, .google-button:disabled { opacity: .48; cursor: not-allowed; }
+    .divider { display: flex; align-items: center; gap: 11px; margin: 18px 0; color: #8e8796; font-size: 11px; }
+    .divider::before, .divider::after { height: 1px; flex: 1; background: rgba(255,255,255,.1); content: ""; }
+    .google-button { display: flex; width: 100%; min-height: 44px; align-items: center; justify-content: center; gap: 10px; border: 1px solid #d5d2d8; border-radius: 8px; background: #f9f8fa; color: #242128; font-size: 13px; font-weight: 750; cursor: pointer; }
+    .google-g { color: #4285f4; font-size: 17px; font-weight: 900; }
+    .auth-switch { margin: 20px 0 0; color: #aaa4b3; font-size: 13px; text-align: center; }
+    .verification-hint { margin: 0; color: #bdb6c4; font-size: 12px; line-height: 1.6; }
+    .auth-photo { position: relative; min-height: 590px; overflow: hidden; background: #16141c; }
+    .auth-photo img { display: block; width: 100%; height: 100%; min-height: 590px; object-fit: cover; object-position: center; }
+    .auth-photo::after { position: absolute; inset: 45% 0 0; background: linear-gradient(180deg, transparent, rgba(7,6,9,.78)); content: ""; }
+    .photo-caption { position: absolute; z-index: 1; right: 28px; bottom: 26px; left: 28px; }
+    .photo-caption span { display: block; color: var(--lime); font-size: 10px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; }
+    .photo-caption strong { display: block; margin-top: 7px; color: #fff; font-size: 23px; letter-spacing: -.5px; }
+    @media (max-width: 760px) {
+      body { padding: 18px 14px; }
+      .login-card { grid-template-columns: 1fr; }
+      .auth-panel { padding: 32px 25px; }
+      .auth-photo { min-height: 245px; }
+      .auth-photo img { min-height: 245px; max-height: 300px; object-position: center 42%; }
+      .photo-caption { right: 20px; bottom: 19px; left: 20px; }
+    }
+    @media (max-width: 420px) {
+      .auth-topbar { align-items: flex-start; }
+      .back-link { max-width: 95px; text-align: right; }
+      .auth-panel { padding: 27px 19px; }
+      .password-row { align-items: flex-start; flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="auth-shell">
+    <header class="auth-topbar">
+      <a class="brand" href="index.html" aria-label="Form and Function home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M3 12h4l2.2-6 4.1 12 2.4-6H21" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span>form <em>&amp;</em> function</span>
+      </a>
+      <a class="back-link" href="index.html#planner">Back to workout ↗</a>
+    </header>
+
+    <section class="login-card" aria-label="Account access">
+      <div class="auth-panel">
+        <p class="auth-kicker">Move with intention</p>
+        <h1 id="auth-title">Welcome back</h1>
+        <p class="auth-intro" id="auth-intro">Sign in to manage your workout plan and reminders.</p>
+        <p class="auth-status" id="auth-status" role="status" aria-live="polite" hidden></p>
+
+        <section class="auth-view" id="sign-in-view">
+          <form class="auth-form" id="sign-in-form">
+            <label class="field" for="sign-in-email">Email
+              <input id="sign-in-email" name="email" type="email" autocomplete="username" placeholder="Enter your email" required>
+            </label>
+            <label class="field" for="sign-in-password">Password
+              <input id="sign-in-password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+            </label>
+            <div class="password-row">
+              <label class="remember-option"><input id="remember-me" type="checkbox" checked> Remember me</label>
+              <button class="text-button" id="show-forgot" type="button">Forgot password?</button>
+            </div>
+            <button class="primary-button" type="submit" data-auth-action>Sign in</button>
+          </form>
+          <div class="divider">or continue with</div>
+          <button class="google-button" id="google-sign-in" type="button" data-auth-action><span class="google-g" aria-hidden="true">G</span> Sign in with Google</button>
+          <p class="auth-switch">New here? <button class="text-button" id="show-sign-up" type="button">Create an account</button></p>
+        </section>
+
+        <section class="auth-view" id="sign-up-view" hidden>
+          <form class="auth-form" id="sign-up-form">
+            <label class="field" for="sign-up-email">Email
+              <input id="sign-up-email" name="email" type="email" autocomplete="email" placeholder="Enter your email" required>
+            </label>
+            <label class="field" for="sign-up-password">Password
+              <input id="sign-up-password" name="password" type="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters" required>
+            </label>
+            <button class="primary-button" type="submit" data-auth-action>Create account</button>
+          </form>
+          <p class="auth-switch">Already have an account? <button class="text-button" id="show-sign-in-from-sign-up" type="button">Sign in</button></p>
+        </section>
+
+        <section class="auth-view" id="verify-view" hidden>
+          <form class="auth-form" id="verify-form">
+            <p class="verification-hint">Enter the 6-digit verification code sent to <strong id="verification-email"></strong>.</p>
+            <label class="field" for="verification-code">Verification code
+              <input id="verification-code" name="token" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="000000" required>
+            </label>
+            <button class="primary-button" type="submit" data-auth-action>Verify email</button>
+          </form>
+          <p class="auth-switch">No code? <button class="text-button" id="resend-code" type="button" data-auth-action>Resend code</button></p>
+        </section>
+
+        <section class="auth-view" id="forgot-view" hidden>
+          <form class="auth-form" id="forgot-form">
+            <label class="field" for="forgot-email">Email
+              <input id="forgot-email" name="email" type="email" autocomplete="email" placeholder="Enter your account email" required>
+            </label>
+            <button class="primary-button" type="submit" data-auth-action>Send reset link</button>
+          </form>
+          <p class="auth-switch"><button class="text-button" id="show-sign-in-from-forgot" type="button">Back to sign in</button></p>
+        </section>
+
+        <section class="auth-view" id="reset-view" hidden>
+          <form class="auth-form" id="reset-form">
+            <label class="field" for="new-password">New password
+              <input id="new-password" name="password" type="password" autocomplete="new-password" minlength="8" required>
+            </label>
+            <label class="field" for="confirm-password">Confirm new password
+              <input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password" minlength="8" required>
+            </label>
+            <button class="primary-button" type="submit" data-auth-action>Save new password</button>
+          </form>
+        </section>
+      </div>
+
+      <aside class="auth-photo" aria-label="Workout inspiration">
+        <img src="assets/login-athlete.jpg" alt="Athlete training with battle ropes">
+        <div class="photo-caption"><span>Form &amp; Function</span><strong>Find your pace. Build your strength.</strong></div>
+      </aside>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/app-config.js"></script>
+  <script src="assets/supabase-client.js"></script>
+  <script>
+    const authStatus = document.getElementById("auth-status");
+    const authTitle = document.getElementById("auth-title");
+    const authIntro = document.getElementById("auth-intro");
+    const rememberCheckbox = document.getElementById("remember-me");
+    const authViews = Array.from(document.querySelectorAll(".auth-view"));
+    const isRecoveryRedirect = new URLSearchParams(window.location.hash.slice(1)).get("type") === "recovery";
+    let authClient = null;
+    let verificationEmail = "";
+
+    function showAuthStatus(message, kind) {
+      authStatus.textContent = message;
+      authStatus.dataset.kind = kind || "info";
+      authStatus.hidden = message === "";
+    }
+
+    function showAuthView(viewId, title, intro) {
+      authViews.forEach((view) => {
+        view.hidden = view.id !== viewId;
+      });
+      authTitle.textContent = title;
+      authIntro.textContent = intro;
+      showAuthStatus("", "info");
+    }
+
+    function reportAuthError(error) {
+      console.error("Authentication request failed:", error);
+      showAuthStatus(error instanceof Error ? error.message : "The request could not be completed. Please try again.", "error");
+    }
+
+    async function runAuthAction(button, action) {
+      button.disabled = true;
+      try {
+        await action();
+      } catch (error) {
+        reportAuthError(error);
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    function redirectToDashboard() {
+      window.location.assign("dashboard.html");
+    }
+
+    document.getElementById("show-sign-up").addEventListener("click", () => {
+      showAuthView("sign-up-view", "Create your account", "We’ll email you a verification code to finish signing up.");
+    });
+    document.getElementById("show-sign-in-from-sign-up").addEventListener("click", () => {
+      showAuthView("sign-in-view", "Welcome back", "Sign in to manage your workout plan and reminders.");
+    });
+    document.getElementById("show-forgot").addEventListener("click", () => {
+      document.getElementById("forgot-email").value = document.getElementById("sign-in-email").value;
+      showAuthView("forgot-view", "Reset your password", "We’ll send a secure password reset link to your email.");
+    });
+    document.getElementById("show-sign-in-from-forgot").addEventListener("click", () => {
+      showAuthView("sign-in-view", "Welcome back", "Sign in to manage your workout plan and reminders.");
+    });
+
+    document.getElementById("sign-in-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = event.currentTarget.querySelector('[type="submit"]');
+      if (!authClient) return;
+      await runAuthAction(button, async () => {
+        window.localStorage.setItem("form-function-remember-session", String(rememberCheckbox.checked));
+        const { data, error } = await authClient.auth.signInWithPassword({
+          email: document.getElementById("sign-in-email").value.trim(),
+          password: document.getElementById("sign-in-password").value
+        });
+        if (error) throw error;
+        if (data.session) redirectToDashboard();
+      });
+    });
+
+    document.getElementById("sign-up-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = event.currentTarget.querySelector('[type="submit"]');
+      if (!authClient) return;
+      await runAuthAction(button, async () => {
+        verificationEmail = document.getElementById("sign-up-email").value.trim();
+        const { data, error } = await authClient.auth.signUp({
+          email: verificationEmail,
+          password: document.getElementById("sign-up-password").value,
+          options: { emailRedirectTo: new URL("login.html", window.location.href).href }
+        });
+        if (error) throw error;
+        if (data.session) {
+          redirectToDashboard();
+          return;
+        }
+        document.getElementById("verification-email").textContent = verificationEmail;
+        showAuthView("verify-view", "Check your email", "Enter the code to verify your account.");
+        showAuthStatus("A 6-digit verification code has been sent to your email.", "success");
+      });
+    });
+
+    document.getElementById("verify-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = event.currentTarget.querySelector('[type="submit"]');
+      if (!authClient) return;
+      await runAuthAction(button, async () => {
+        const { data, error } = await authClient.auth.verifyOtp({
+          email: verificationEmail,
+          token: document.getElementById("verification-code").value.trim(),
+          type: "email"
+        });
+        if (error) throw error;
+        if (data.session) {
+          redirectToDashboard();
+          return;
+        }
+        showAuthView("sign-in-view", "Email verified", "Your email is verified. Sign in to continue.");
+        showAuthStatus("Email verified successfully.", "success");
+      });
+    });
+
+    document.getElementById("resend-code").addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      if (!authClient) return;
+      await runAuthAction(button, async () => {
+        const { error } = await authClient.auth.resend({ type: "signup", email: verificationEmail });
+        if (error) throw error;
+        showAuthStatus("A new verification code has been sent.", "success");
+      });
+    });
+
+    document.getElementById("forgot-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = event.currentTarget.querySelector('[type="submit"]');
+      if (!authClient) return;
+      await runAuthAction(button, async () => {
+        const email = document.getElementById("forgot-email").value.trim();
+        const redirectTo = new URL("login.html", window.location.href).href;
+        const { error } = await authClient.auth.resetPasswordForEmail(email, { redirectTo });
+        if (error) throw error;
+        showAuthStatus("If an account exists for that email, a secure reset link is on its way.", "success");
+      });
+    });
+
+    document.getElementById("reset-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = event.currentTarget.querySelector('[type="submit"]');
+      if (!authClient) return;
+      await runAuthAction(button, async () => {
+        const password = document.getElementById("new-password").value;
+        if (password !== document.getElementById("confirm-password").value) {
+          throw new Error("The new passwords do not match.");
+        }
+        const { error } = await authClient.auth.updateUser({ password });
+        if (error) throw error;
+        showAuthView("sign-in-view", "Password updated", "Your password was changed. Sign in with your new password.");
+        showAuthStatus("Your password has been reset successfully.", "success");
+      });
+    });
+
+    document.getElementById("google-sign-in").addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      if (!authClient) return;
+      await runAuthAction(button, async () => {
+        window.localStorage.setItem("form-function-remember-session", String(rememberCheckbox.checked));
+        const { error } = await authClient.auth.signInWithOAuth({
+          provider: "google",
+          options: { redirectTo: new URL("dashboard.html", window.location.href).href }
+        });
+        if (error) throw error;
+      });
+    });
+
+    async function initializeAuth() {
+      const config = window.FORM_FUNCTION_CONFIG;
+      if (!config || !config.supabaseUrl || !config.supabaseAnonKey) {
+        showAuthStatus("To enable sign-in, add your Supabase project URL and public anon key to assets/app-config.js. Never put a service-role key in the browser.", "error");
+        document.querySelectorAll("[data-auth-action]").forEach((button) => { button.disabled = true; });
+        return;
+      }
+      if (!window.supabase || !window.createFormFunctionClient) {
+        showAuthStatus("The authentication library could not load. Check your internet connection and try again.", "error");
+        document.querySelectorAll("[data-auth-action]").forEach((button) => { button.disabled = true; });
+        return;
+      }
+      try {
+        authClient = window.createFormFunctionClient();
+        const { data, error } = await authClient.auth.getSession();
+        if (error) throw error;
+        authClient.auth.onAuthStateChange((event) => {
+          if (event === "PASSWORD_RECOVERY") {
+            showAuthView("reset-view", "Choose a new password", "Create a new password for your account.");
+          }
+        });
+        if (data.session && !isRecoveryRedirect) {
+          redirectToDashboard();
+          return;
+        }
+        if (isRecoveryRedirect) {
+          showAuthView("reset-view", "Choose a new password", "Create a new password for your account.");
+        }
+      } catch (error) {
+        reportAuthError(error);
+      }
+    }
+
+    initializeAuth();
+  </script>
+  <script src="assets/pwa.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "id": "./login.html",
+  "name": "Form & Function",
+  "short_name": "Form & Function",
+  "description": "Build workouts, track progress, and keep your routine moving.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#050706",
+  "theme_color": "#050706",
+  "icons": [
+    {
+      "src": "assets/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

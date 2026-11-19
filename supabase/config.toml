@@ -1,0 +1,2 @@
+[functions.send-workout-reminders]
+verify_jwt = false

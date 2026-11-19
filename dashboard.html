@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050706">
+  <meta name="description" content="Review your recent workouts and track your progress over time.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/app-icon.svg" type="image/svg+xml">
+  <title>Progress dashboard — Form &amp; Function</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --paper: #050706;
+      --white: #0e120f;
+      --muted: #aaa4b3;
+      --pink: #f0a3ed;
+    }
+    * { box-sizing: border-box; }
+    html { overflow-x: clip; scroll-behavior: smooth; }
+    body { margin: 0; background: var(--paper); color: #f5f7f3; }
+    a:focus-visible { outline: 3px solid #e99069; outline-offset: 3px; }
+    .shell { max-width: 1200px; width: calc(100% - 64px); margin: 0 auto; }
+    .topbar { height: 82px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,.07); }
+    .brand { display: inline-flex; gap: 11px; align-items: center; color: #f5f7f3; text-decoration: none; font-size: 15px; font-weight: 800; letter-spacing: -.5px; }
+    .brand-mark { display: grid; width: 35px; height: 35px; place-items: center; border-radius: 12px; background: #d3ef75; color: #11170c; }
+    .brand-mark svg { width: 21px; height: 21px; }
+    .brand em { color: #d3ef75; font-style: normal; }
+    .nav-links { display: flex; align-items: center; gap: 27px; }
+    .nav-links a { color: #c3bdca; text-decoration: none; font-size: 13px; font-weight: 650; }
+    .nav-links a:hover, .nav-links a[aria-current="page"] { color: var(--pink); }
+    .nav-cta { padding: 11px 16px; border: 1px solid rgba(232,161,235,.25); border-radius: 999px; background: linear-gradient(145deg, #403a4d, #302d3b); color: #f4eaf5 !important; }
+    main { padding: 38px 0 45px; }
+    .progress-dashboard { padding: 34px 35px; border: 1px solid rgba(255,255,255,.07); border-radius: 20px; background: linear-gradient(145deg, #17151d, #10120f); box-shadow: 12px 14px 28px rgba(0,0,0,.32), -5px -5px 16px rgba(255,255,255,.025); }
+    .dashboard-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+    .step-label { color: var(--pink); font-size: 11px; font-weight: 800; letter-spacing: 1.3px; text-transform: uppercase; }
+    .dashboard-heading h1 { margin: 8px 0 0; color: #f5f0f8; font-size: clamp(29px, 4vw, 40px); letter-spacing: -1.2px; line-height: 1.1; }
+    .dashboard-heading p { max-width: 360px; margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; text-align: right; }
+    .dashboard-message { margin: 16px 0 0; padding: 10px 12px; border: 1px solid rgba(255,184,142,.25); border-radius: 9px; background: rgba(144,83,56,.14); color: #ffd1b7; font-size: 13px; line-height: 1.5; }
+    .dashboard-message[hidden] { display: none; }
+    .dashboard-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 23px; }
+    .dashboard-stat, .dashboard-panel { border: 1px solid rgba(255,255,255,.06); border-radius: 13px; background: #1d1b25; box-shadow: inset 2px 2px 6px rgba(0,0,0,.16), 3px 4px 10px rgba(0,0,0,.16); }
+    .dashboard-stat { min-height: 108px; padding: 16px; }
+    .dashboard-stat span { display: block; color: #c4bdcb; font-size: 13px; line-height: 1.45; }
+    .dashboard-stat strong { display: block; margin-top: 8px; color: var(--pink); font-size: 29px; font-variant-numeric: tabular-nums; letter-spacing: -.5px; }
+    .dashboard-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+    .dashboard-panel { min-width: 0; padding: 20px; }
+    .dashboard-panel h2 { margin: 0; color: #f5f0f8; font-size: 17px; }
+    .dashboard-panel-note { margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .activity-chart { display: grid; gap: 11px; margin-top: 18px; }
+    .activity-row { display: grid; grid-template-columns: 58px minmax(0, 1fr) 64px; align-items: center; gap: 11px; }
+    .activity-day, .activity-value { color: #d0c9d5; font-size: 12px; }
+    .activity-value { text-align: right; font-variant-numeric: tabular-nums; }
+    .activity-track { height: 11px; overflow: hidden; border-radius: 999px; background: #302d38; }
+    .activity-fill { display: block; width: var(--bar-width); height: 100%; border-radius: inherit; background: linear-gradient(90deg, #9c67d6, #e68be7); }
+    .recent-workouts { display: grid; gap: 9px; margin: 15px 0 0; padding: 0; list-style: none; }
+    .recent-workout { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px; border-radius: 9px; background: #26232e; }
+    .recent-workout-info, .recent-workout-time { display: grid; gap: 4px; }
+    .recent-workout-info strong { color: #f1ebf3; font-size: 13px; }
+    .recent-workout-info span, .recent-workout-time span { color: #b7afbf; font-size: 11px; line-height: 1.4; }
+    .recent-workout-time { flex: 0 0 auto; text-align: right; }
+    .recent-workout-time strong { color: var(--pink); font-size: 13px; font-variant-numeric: tabular-nums; }
+    .dashboard-empty { margin: 16px 0 0; color: #c4bdcb; font-size: 14px; line-height: 1.6; }
+    .dashboard-privacy { margin: 15px 0 0; color: #a39baa; font-size: 12px; line-height: 1.5; }
+    .reminder-settings { margin-bottom: 18px; padding: 23px 26px; border: 1px solid rgba(255,255,255,.07); border-radius: 17px; background: linear-gradient(145deg, #17151d, #10120f); box-shadow: 9px 10px 24px rgba(0,0,0,.24); }
+    .reminder-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+    .reminder-heading h2 { margin: 7px 0 0; color: #f5f0f8; font-size: 22px; letter-spacing: -.5px; }
+    .reminder-heading p { max-width: 430px; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .reminder-message, .pwa-status { margin: 14px 0 0; color: #c9c1d0; font-size: 13px; line-height: 1.55; }
+    .reminder-message[data-kind="error"] { color: #ffd1c2; }
+    .reminder-message[data-kind="success"] { color: #e8f4c4; }
+    .reminder-signin { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 16px; }
+    .reminder-signin[hidden], .reminder-account[hidden] { display: none; }
+    .reminder-signin p { margin: 0; color: #c9c1d0; font-size: 13px; line-height: 1.55; }
+    .reminder-signin a, .reminder-button { display: inline-flex; min-height: 40px; align-items: center; justify-content: center; padding: 9px 14px; border: 1px solid rgba(232,161,235,.25); border-radius: 8px; background: linear-gradient(145deg, #403a4d, #302d3b); color: #f4eaf5; font: inherit; font-size: 12px; font-weight: 750; text-decoration: none; cursor: pointer; }
+    .reminder-button.primary { border-color: transparent; background: linear-gradient(130deg, #e68be7, #9c67d6); color: #180e1c; }
+    .reminder-button:disabled { opacity: .48; cursor: not-allowed; }
+    .reminder-account { margin-top: 17px; }
+    .account-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-bottom: 13px; border-bottom: 1px solid rgba(255,255,255,.08); color: #d3ccd9; font-size: 13px; }
+    .reminder-form { display: grid; gap: 15px; margin-top: 16px; }
+    .reminder-form[hidden] { display: none; }
+    .reminder-toggle, .setting-choice { display: inline-flex; align-items: center; gap: 9px; color: #f1ebf3; font-size: 13px; font-weight: 700; }
+    .reminder-toggle input, .setting-choice input { width: 17px; height: 17px; accent-color: var(--pink); }
+    .reminder-time-row { display: flex; align-items: flex-end; gap: 16px; }
+    .reminder-time-label { display: grid; gap: 7px; color: #d4ced9; font-size: 12px; font-weight: 700; }
+    .reminder-time-label input { min-height: 40px; padding: 8px 10px; border: 1px solid rgba(255,255,255,.13); border-radius: 8px; background: #0e0d12; color: #fff; font: inherit; }
+    .timezone-note { margin: 0 0 10px; color: #aaa4b3; font-size: 12px; }
+    .delivery-options { display: flex; flex-wrap: wrap; gap: 18px; margin: 0; padding: 12px 14px; border: 1px solid rgba(255,255,255,.1); border-radius: 9px; }
+    .delivery-options legend { padding: 0 5px; color: #c9c1d0; font-size: 12px; }
+    .setting-choice { color: #d4ced9; font-size: 12px; font-weight: 600; }
+    .reminder-actions { display: flex; flex-wrap: wrap; gap: 9px; }
+    .account-message { min-height: 20px; margin: 0; color: #e8f4c4; font-size: 12px; line-height: 1.5; }
+    .bottom-note { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 0 35px; border-top: 1px solid rgba(255,255,255,.07); color: #aaa4b3; font-size: 12px; }
+    .bottom-note strong { color: #ece5f1; }
+    html.scroll-reveal-ready [data-reveal] { opacity: 0; transform: translateY(22px); transition: opacity .65s ease, transform .65s ease; }
+    html.scroll-reveal-ready [data-reveal].is-revealed { opacity: 1; transform: translateY(0); }
+    @media (max-width: 900px) {
+      .dashboard-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .dashboard-panels { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 620px) {
+      .shell { width: calc(100% - 34px); }
+      .topbar { height: auto; min-height: 69px; flex-wrap: wrap; gap: 8px; padding: 10px 0; }
+      .nav-links { width: 100%; justify-content: space-between; gap: 10px; }
+      .nav-links a { font-size: 11px; }
+      .nav-links a:first-child { display: none; }
+      .nav-cta { padding: 10px 11px; }
+      main { padding: 25px 0 32px; }
+      .progress-dashboard { padding: 23px 17px; border-radius: 16px; }
+      .dashboard-heading { align-items: flex-start; flex-direction: column; gap: 8px; }
+      .dashboard-heading p { text-align: left; }
+      .dashboard-stat { min-height: 99px; padding: 13px; }
+      .dashboard-stat span { font-size: 12px; }
+      .dashboard-stat strong { font-size: 27px; }
+      .dashboard-panel { padding: 16px; }
+      .dashboard-panels { grid-template-columns: 1fr; }
+      .reminder-settings { padding: 21px 17px; }
+      .reminder-heading { flex-direction: column; gap: 8px; }
+      .reminder-signin { align-items: flex-start; flex-direction: column; }
+      .reminder-time-row { align-items: flex-start; flex-direction: column; gap: 4px; }
+      .timezone-note { margin: 0; }
+      .account-row { align-items: flex-start; flex-direction: column; }
+      .activity-row { grid-template-columns: 45px minmax(0, 1fr) 58px; gap: 8px; }
+      .bottom-note { align-items: flex-start; flex-direction: column; gap: 8px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html.scroll-reveal-ready [data-reveal] { opacity: 1; transform: none; transition: none; }
+    }
+  </style>
+  <script src="assets/reveal.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="Form and Function home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M3 12h4l2.2-6 4.1 12 2.4-6H21" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span>form <em>&amp;</em> function</span>
+      </a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="index.html#how-it-works">How it works</a>
+        <a href="index.html#planner">Build a workout</a>
+        <a href="dashboard.html" aria-current="page">Dashboard</a>
+        <a href="login.html">Sign in</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="reminder-settings" aria-labelledby="reminder-title" data-reveal>
+        <div class="reminder-heading">
+          <div>
+            <div class="step-label">Stay consistent</div>
+            <h2 id="reminder-title">Daily workout reminder</h2>
+          </div>
+          <p>Choose a local time and get a daily nudge by email, push notification, or both.</p>
+        </div>
+        <p class="reminder-message" id="reminder-message" role="status" aria-live="polite"></p>
+        <div class="reminder-signin" id="reminder-signin">
+          <p>Sign in to choose when to receive your daily workout reminders.</p>
+          <a href="login.html">Sign in or create account</a>
+        </div>
+        <div class="reminder-account" id="reminder-account" hidden>
+          <div class="account-row">
+            <span>Signed in as <strong id="account-email"></strong></span>
+            <button class="reminder-button" id="sign-out" type="button">Sign out</button>
+          </div>
+          <form class="reminder-form" id="reminder-form" hidden>
+            <label class="reminder-toggle"><input id="reminder-enabled" type="checkbox"> Enable daily reminder</label>
+            <div class="reminder-time-row">
+              <label class="reminder-time-label" for="reminder-time">Reminder time
+                <input id="reminder-time" type="time" value="18:00" required>
+              </label>
+              <p class="timezone-note" id="timezone-note"></p>
+            </div>
+            <fieldset class="delivery-options">
+              <legend>Send reminder by</legend>
+              <label class="setting-choice"><input id="email-reminders" type="checkbox" checked> Email</label>
+              <label class="setting-choice"><input id="push-reminders" type="checkbox"> Push on this device</label>
+            </fieldset>
+            <div class="reminder-actions">
+              <button class="reminder-button primary" type="submit">Save daily reminder</button>
+              <button class="reminder-button" id="enable-push" type="button">Enable push notifications</button>
+              <button class="reminder-button" id="install-app" type="button" hidden>Install app</button>
+            </div>
+            <p class="pwa-status" id="pwa-status" role="status" aria-live="polite">To receive push reminders, install the app if your device requires it, then enable notifications.</p>
+            <p class="account-message" id="account-message" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+      <section class="progress-dashboard" aria-labelledby="progress-title">
+        <div class="dashboard-heading" data-reveal>
+          <div>
+            <div class="step-label">Your activity, at a glance</div>
+            <h1 id="progress-title">Progress dashboard</h1>
+          </div>
+          <p>Track completed workouts and active minutes over time.</p>
+        </div>
+        <p class="dashboard-message" id="dashboard-message" role="status" hidden></p>
+        <div class="dashboard-stats" aria-label="Workout summary" data-reveal>
+          <article class="dashboard-stat"><span>Completed · last 7 days</span><strong id="week-completed">0</strong></article>
+          <article class="dashboard-stat"><span>Active minutes · last 7 days</span><strong id="week-active">0</strong></article>
+          <article class="dashboard-stat"><span>Completed · all time</span><strong id="all-completed">0</strong></article>
+          <article class="dashboard-stat"><span>Active minutes · all time</span><strong id="all-active">0</strong></article>
+        </div>
+        <div class="dashboard-panels" data-reveal>
+          <section class="dashboard-panel" aria-labelledby="activity-title">
+            <h2 id="activity-title">Daily activity</h2>
+            <p class="dashboard-panel-note">Active workout time · last 7 days</p>
+            <div class="activity-chart" id="activity-chart" role="list" aria-label="Daily active workout minutes for the last seven days"></div>
+          </section>
+          <section class="dashboard-panel" aria-labelledby="recent-title">
+            <h2 id="recent-title">Recent workouts</h2>
+            <ul class="recent-workouts" id="recent-workouts"></ul>
+            <p class="dashboard-empty" id="dashboard-empty">Your workout history will appear here after you complete or stop a timed session.</p>
+          </section>
+        </div>
+        <p class="dashboard-privacy" data-reveal>Your workout history is saved locally in this browser.</p>
+      </section>
+    </main>
+
+    <footer class="bottom-note" data-reveal>
+      <span><strong>form &amp; function</strong> · A little movement goes a long way.</span>
+      <a class="brand" href="index.html#planner">Build a workout ↗</a>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/app-config.js"></script>
+  <script src="assets/supabase-client.js"></script>
+  <script src="assets/pwa.js"></script>
+  <script>
+    const HISTORY_STORAGE_KEY = "form-function-workout-history-v1";
+    const focusTitles = {
+      upper: "Upper body",
+      chest: "Chest",
+      core: "Core & stability",
+      legs: "Legs & lower body",
+      glutes: "Glutes & hips",
+      full: "Full body"
+    };
+    const dashboardMessage = document.getElementById("dashboard-message");
+
+    function showStorageWarning(message, error) {
+      console.error("Workout dashboard storage error:", error);
+      dashboardMessage.textContent = message;
+      dashboardMessage.hidden = false;
+    }
+
+    function isValidWorkoutRecord(record) {
+      return record !== null
+        && typeof record === "object"
+        && typeof record.date === "string"
+        && Number.isFinite(Date.parse(record.date))
+        && Object.prototype.hasOwnProperty.call(focusTitles, record.focus)
+        && (record.category === "women" || record.category === "men")
+        && Number.isInteger(record.activeSeconds)
+        && record.activeSeconds >= 0
+        && Number.isInteger(record.plannedSeconds)
+        && record.plannedSeconds > 0
+        && typeof record.completed === "boolean";
+    }
+
+    function loadWorkoutHistory() {
+      let savedHistory;
+      try {
+        savedHistory = window.localStorage.getItem(HISTORY_STORAGE_KEY);
+      } catch (error) {
+        showStorageWarning("This browser could not access saved workout data. Progress is only available in the browser where workouts are stored.", error);
+        return [];
+      }
+      if (savedHistory === null) return [];
+      try {
+        const records = JSON.parse(savedHistory);
+        if (!Array.isArray(records) || !records.every(isValidWorkoutRecord)) {
+          throw new TypeError("Saved workout history has an unexpected format.");
+        }
+        return records;
+      } catch (error) {
+        showStorageWarning("Saved workout history could not be read. New workouts can still be tracked.", error);
+        return [];
+      }
+    }
+
+    function formatActiveMinutes(seconds) {
+      return Number((seconds / 60).toFixed(2)).toString();
+    }
+
+    function formatActiveDuration(seconds) {
+      if (seconds < 60) return `${seconds} sec`;
+      return `${formatActiveMinutes(seconds)} min`;
+    }
+
+    function localDateKey(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function renderDashboard() {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const days = Array.from({ length: 7 }, (_, index) => {
+        const date = new Date(today);
+        date.setDate(today.getDate() - (6 - index));
+        return date;
+      });
+      const weekKeys = new Set(days.map(localDateKey));
+      const weeklyRecords = workoutHistory.filter((record) => weekKeys.has(localDateKey(new Date(record.date))));
+      const weeklyActiveSeconds = weeklyRecords.reduce((total, record) => total + record.activeSeconds, 0);
+      const allActiveSeconds = workoutHistory.reduce((total, record) => total + record.activeSeconds, 0);
+      const completedThisWeek = weeklyRecords.filter((record) => record.completed).length;
+      const completedAllTime = workoutHistory.filter((record) => record.completed).length;
+
+      document.getElementById("week-completed").textContent = String(completedThisWeek);
+      document.getElementById("week-active").textContent = formatActiveMinutes(weeklyActiveSeconds);
+      document.getElementById("all-completed").textContent = String(completedAllTime);
+      document.getElementById("all-active").textContent = formatActiveMinutes(allActiveSeconds);
+
+      const dailyTotals = days.map((date) => {
+        const dateKey = localDateKey(date);
+        const seconds = workoutHistory.reduce((total, record) => (
+          localDateKey(new Date(record.date)) === dateKey ? total + record.activeSeconds : total
+        ), 0);
+        return { date, seconds };
+      });
+      const maximumDailySeconds = Math.max(...dailyTotals.map((day) => day.seconds), 1);
+      const weekdayFormatter = new Intl.DateTimeFormat(undefined, { weekday: "short" });
+      document.getElementById("activity-chart").innerHTML = dailyTotals.map(({ date, seconds }, index) => {
+        const label = index === 6 ? "Today" : weekdayFormatter.format(date);
+        const minutes = formatActiveMinutes(seconds);
+        const barWidth = seconds === 0 ? 0 : Math.max(4, Math.round(seconds / maximumDailySeconds * 100));
+        return `<div class="activity-row" role="listitem" aria-label="${label}: ${minutes} active minutes">
+          <span class="activity-day" aria-hidden="true">${label}</span>
+          <div class="activity-track" aria-hidden="true"><span class="activity-fill" style="--bar-width:${barWidth}%"></span></div>
+          <span class="activity-value" aria-hidden="true">${minutes} min</span>
+        </div>`;
+      }).join("");
+
+      const recentWorkouts = workoutHistory.slice(0, 5);
+      document.getElementById("recent-workouts").innerHTML = recentWorkouts.map((record) => {
+        const categoryLabel = record.category === "women" ? "Women" : "Men";
+        const statusLabel = record.completed ? "Completed" : "Stopped early";
+        const dateLabel = new Date(record.date).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+        return `<li class="recent-workout">
+          <div class="recent-workout-info">
+            <strong>${focusTitles[record.focus]}</strong>
+            <span>${categoryLabel} · ${statusLabel} · Timer ${formatTime(record.plannedSeconds)}</span>
+          </div>
+          <div class="recent-workout-time">
+            <strong>${formatActiveDuration(record.activeSeconds)}</strong>
+            <span>${dateLabel}</span>
+          </div>
+        </li>`;
+      }).join("");
+      document.getElementById("dashboard-empty").hidden = recentWorkouts.length > 0;
+    }
+
+    function formatTime(seconds) {
+      const minutes = Math.floor(seconds / 60).toString().padStart(2, "0");
+      const remainder = (seconds % 60).toString().padStart(2, "0");
+      return `${minutes}:${remainder}`;
+    }
+
+    let workoutHistory = loadWorkoutHistory();
+    renderDashboard();
+
+    window.addEventListener("storage", (event) => {
+      if (event.key === HISTORY_STORAGE_KEY || event.key === null) {
+        workoutHistory = loadWorkoutHistory();
+        renderDashboard();
+      }
+    });
+
+    window.addEventListener("pageshow", (event) => {
+      if (event.persisted) {
+        workoutHistory = loadWorkoutHistory();
+        renderDashboard();
+      }
+    });
+
+    const reminderMessage = document.getElementById("reminder-message");
+    const reminderSignIn = document.getElementById("reminder-signin");
+    const reminderAccount = document.getElementById("reminder-account");
+    const reminderForm = document.getElementById("reminder-form");
+    const accountMessage = document.getElementById("account-message");
+    const pushCheckbox = document.getElementById("push-reminders");
+    let reminderClient = null;
+    let signedInUser = null;
+
+    function showReminderMessage(message, kind) {
+      reminderMessage.textContent = message;
+      reminderMessage.dataset.kind = kind || "info";
+    }
+
+    function showAccountMessage(message, isError) {
+      accountMessage.textContent = message;
+      accountMessage.style.color = isError ? "#ffd1c2" : "#e8f4c4";
+    }
+
+    function decodeApplicationServerKey(value) {
+      const padding = "=".repeat((4 - value.length % 4) % 4);
+      const base64 = (value + padding).replace(/-/g, "+").replace(/_/g, "/");
+      const raw = window.atob(base64);
+      return Uint8Array.from(raw, (character) => character.charCodeAt(0));
+    }
+
+    async function getCurrentPushSubscription() {
+      if (!window.isSecureContext || !("serviceWorker" in navigator) || !("PushManager" in window)) return null;
+      const registration = await navigator.serviceWorker.getRegistration();
+      return registration ? registration.pushManager.getSubscription() : null;
+    }
+
+    async function initializeReminderSettings() {
+      const config = window.FORM_FUNCTION_CONFIG;
+      if (!config || !config.supabaseUrl || !config.supabaseAnonKey) {
+        showReminderMessage("Add your Supabase URL and public anon key to assets/app-config.js to connect sign-in and reminder settings.", "error");
+        return;
+      }
+      if (!window.supabase || !window.createFormFunctionClient) {
+        showReminderMessage("The authentication library could not load. Check your internet connection and reload this page.", "error");
+        return;
+      }
+      try {
+        reminderClient = window.createFormFunctionClient();
+        const { data, error } = await reminderClient.auth.getSession();
+        if (error) throw error;
+        if (!data.session) {
+          showReminderMessage("Sign in to save your daily reminder settings.", "info");
+          return;
+        }
+
+        signedInUser = data.session.user;
+        document.getElementById("account-email").textContent = signedInUser.email || "Your account";
+        reminderSignIn.hidden = true;
+        reminderAccount.hidden = false;
+        reminderForm.hidden = false;
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+        document.getElementById("timezone-note").textContent = `Your device time zone: ${timezone}`;
+
+        const { data: reminder, error: reminderError } = await reminderClient
+          .from("workout_reminders")
+          .select("enabled, local_time, timezone, email_enabled, push_enabled")
+          .eq("user_id", signedInUser.id)
+          .maybeSingle();
+        if (reminderError) throw reminderError;
+        if (reminder) {
+          document.getElementById("reminder-enabled").checked = reminder.enabled;
+          document.getElementById("reminder-time").value = reminder.local_time.slice(0, 5);
+          document.getElementById("email-reminders").checked = reminder.email_enabled;
+          pushCheckbox.checked = reminder.push_enabled;
+        }
+
+        const pushSupported = window.isSecureContext
+          && "serviceWorker" in navigator
+          && "PushManager" in window
+          && "Notification" in window
+          && Boolean(config.vapidPublicKey);
+        document.getElementById("enable-push").disabled = !pushSupported;
+        if (!pushSupported) {
+          document.getElementById("pwa-status").textContent = "Push setup needs HTTPS, a supported browser, and a VAPID public key. Email reminders still work.";
+        }
+      } catch (error) {
+        console.error("Could not load reminder settings:", error);
+        showReminderMessage(error instanceof Error ? error.message : "Reminder settings could not be loaded.", "error");
+      }
+    }
+
+    document.getElementById("reminder-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = event.currentTarget.querySelector('[type="submit"]');
+      if (!reminderClient || !signedInUser) return;
+      button.disabled = true;
+      try {
+        const enabled = document.getElementById("reminder-enabled").checked;
+        const emailEnabled = document.getElementById("email-reminders").checked;
+        const pushEnabled = pushCheckbox.checked;
+        if (enabled && !emailEnabled && !pushEnabled) {
+          throw new Error("Choose email, push, or both before enabling reminders.");
+        }
+        if (enabled && pushEnabled && !await getCurrentPushSubscription()) {
+          throw new Error("Enable push notifications on this device before saving push reminders.");
+        }
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+        const { error } = await reminderClient.from("workout_reminders").upsert({
+          user_id: signedInUser.id,
+          enabled,
+          local_time: document.getElementById("reminder-time").value,
+          timezone,
+          email_enabled: emailEnabled,
+          push_enabled: pushEnabled
+        }, { onConflict: "user_id" });
+        if (error) throw error;
+        showAccountMessage(enabled ? "Daily workout reminder saved." : "Daily workout reminder turned off.", false);
+      } catch (error) {
+        console.error("Could not save workout reminder:", error);
+        showAccountMessage(error instanceof Error ? error.message : "The reminder could not be saved.", true);
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById("enable-push").addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      if (!reminderClient || !signedInUser) return;
+      const config = window.FORM_FUNCTION_CONFIG;
+      button.disabled = true;
+      try {
+        if (!window.isSecureContext || !("serviceWorker" in navigator) || !("PushManager" in window) || !config.vapidPublicKey) {
+          throw new Error("Push notifications require HTTPS, a supported browser, and the app's VAPID public key.");
+        }
+        let permission = Notification.permission;
+        if (permission !== "granted") permission = await Notification.requestPermission();
+        if (permission !== "granted") throw new Error("Notification permission was not granted. Change it in your browser settings to enable push.");
+        const registration = await navigator.serviceWorker.register("./service-worker.js");
+        const existingSubscription = await registration.pushManager.getSubscription();
+        const subscription = existingSubscription || await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: decodeApplicationServerKey(config.vapidPublicKey)
+        });
+        const { error } = await reminderClient.from("push_subscriptions").upsert({
+          user_id: signedInUser.id,
+          endpoint: subscription.endpoint,
+          subscription: subscription.toJSON()
+        }, { onConflict: "endpoint" });
+        if (error) throw error;
+        pushCheckbox.checked = true;
+        document.getElementById("reminder-enabled").checked = true;
+        showAccountMessage("Push is enabled on this device. Save your daily time to activate reminders.", false);
+      } catch (error) {
+        console.error("Could not enable push notifications:", error);
+        showAccountMessage(error instanceof Error ? error.message : "Push notifications could not be enabled.", true);
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById("sign-out").addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      if (!reminderClient) return;
+      button.disabled = true;
+      try {
+        const subscription = await getCurrentPushSubscription();
+        if (subscription && signedInUser) {
+          const { error: subscriptionError } = await reminderClient
+            .from("push_subscriptions")
+            .delete()
+            .eq("user_id", signedInUser.id)
+            .eq("endpoint", subscription.endpoint);
+          if (subscriptionError) throw subscriptionError;
+        }
+        const { error } = await reminderClient.auth.signOut();
+        if (error) throw error;
+        window.location.assign("login.html");
+      } catch (error) {
+        console.error("Could not sign out:", error);
+        showAccountMessage(error instanceof Error ? error.message : "Sign-out failed.", true);
+        button.disabled = false;
+      }
+    });
+
+    initializeReminderSettings();
+  </script>
+</body>
+</html>
