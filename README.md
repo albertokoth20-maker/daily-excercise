@@ -50,6 +50,10 @@ supabase/
 BACKEND_SETUP.md                  Supabase, email, and push setup guide
 ```
 
+## Live site
+
+The app is hosted on Netlify at https://form-and-function-fitness.netlify.app/ and deploys automatically from the `main` branch. There is no build step; the repository root is published as-is.
+
 ## Run locally
 
 The app can be served with any static web server. Python's server is a simple option:
