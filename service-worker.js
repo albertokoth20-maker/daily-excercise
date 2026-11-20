@@ -1,4 +1,4 @@
-const CACHE_NAME = "form-function-shell-v13";
+const CACHE_NAME = "form-function-shell-v14";
 const PHOTO_CACHE = "form-function-food-photos-v1";
 const PHOTO_HOST = "upload.wikimedia.org";
 const APP_SHELL = [
@@ -61,12 +61,18 @@ self.addEventListener("fetch", (event) => {
     return;
   }
   if (event.request.method !== "GET" || requestUrl.origin !== self.location.origin) return;
+  // Network first, so updates appear as soon as they are deployed; the cache is the offline fallback.
   event.respondWith((async () => {
-    const cachedResponse = await caches.match(event.request);
-    if (cachedResponse) return cachedResponse;
     try {
-      return await fetch(event.request);
+      const response = await fetch(event.request);
+      if (response.ok && response.type === "basic") {
+        const cache = await caches.open(CACHE_NAME);
+        cache.put(event.request, response.clone());
+      }
+      return response;
     } catch (error) {
+      const cachedResponse = await caches.match(event.request, { ignoreSearch: true });
+      if (cachedResponse) return cachedResponse;
       if (event.request.mode === "navigate") {
         const offlinePage = await caches.match("./index.html");
         if (offlinePage) return offlinePage;
