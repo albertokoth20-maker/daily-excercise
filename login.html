@@ -57,6 +57,7 @@
     .divider { display: flex; align-items: center; gap: 11px; margin: 18px 0; color: #8e8796; font-size: 11px; }
     .divider::before, .divider::after { height: 1px; flex: 1; background: rgba(255,255,255,.1); content: ""; }
     .google-button { display: flex; width: 100%; min-height: 44px; align-items: center; justify-content: center; gap: 10px; border: 1px solid #d5d2d8; border-radius: 8px; background: #f9f8fa; color: #242128; font-size: 13px; font-weight: 750; cursor: pointer; }
+    .google-option[hidden] { display: none; }
     .google-g { display: block; width: 18px; height: 18px; flex: 0 0 18px; }
     .auth-switch { margin: 20px 0 0; color: #aaa4b3; font-size: 13px; text-align: center; }
     .verification-hint { margin: 0; color: #bdb6c4; font-size: 12px; line-height: 1.6; }
@@ -126,8 +127,10 @@
             </div>
             <button class="primary-button" type="submit" data-auth-action>Sign in</button>
           </form>
-          <div class="divider">or continue with</div>
-          <button class="google-button" id="google-sign-in" type="button" data-auth-action><svg class="google-g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11c-.5 2.5-2 4.6-4.2 6v5h6.8c4-3.7 6-9 6-14.7z"/><path fill="#34A853" d="M24 44c5.4 0 9.9-1.8 13.2-4.8l-6.8-5c-1.8 1.2-4 1.9-6.4 1.9-4.9 0-9.1-3.3-10.6-7.8H6.4v5.2C9.7 39.8 16.3 44 24 44z"/><path fill="#FBBC05" d="M13.4 28.3a12 12 0 0 1 0-8.6v-5.2H6.4a20 20 0 0 0 0 19z"/><path fill="#EA4335" d="M24 9.5c3 0 5.7 1 7.8 3.1l5.8-5.8C34.1 3.6 29.4 1.5 24 1.5c-7.7 0-14.3 4.2-17.6 10.4l6.9 5.2C14.9 12.8 19.1 9.5 24 9.5z"/></svg> Sign in with Google</button>
+          <div class="google-option" hidden>
+            <div class="divider">or continue with</div>
+            <button class="google-button" id="google-sign-in" data-google-auth type="button" data-auth-action><svg class="google-g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11c-.5 2.5-2 4.6-4.2 6v5h6.8c4-3.7 6-9 6-14.7z"/><path fill="#34A853" d="M24 44c5.4 0 9.9-1.8 13.2-4.8l-6.8-5c-1.8 1.2-4 1.9-6.4 1.9-4.9 0-9.1-3.3-10.6-7.8H6.4v5.2C9.7 39.8 16.3 44 24 44z"/><path fill="#FBBC05" d="M13.4 28.3a12 12 0 0 1 0-8.6v-5.2H6.4a20 20 0 0 0 0 19z"/><path fill="#EA4335" d="M24 9.5c3 0 5.7 1 7.8 3.1l5.8-5.8C34.1 3.6 29.4 1.5 24 1.5c-7.7 0-14.3 4.2-17.6 10.4l6.9 5.2C14.9 12.8 19.1 9.5 24 9.5z"/></svg> Sign in with Google</button>
+          </div>
           <p class="auth-switch">New here? <button class="text-button" id="show-sign-up" type="button">Create an account</button></p>
         </section>
 
@@ -141,6 +144,10 @@
             </label>
             <button class="primary-button" type="submit" data-auth-action>Create account</button>
           </form>
+          <div class="google-option" hidden>
+            <div class="divider">or sign up with</div>
+            <button class="google-button" id="google-sign-up" data-google-auth type="button" data-auth-action><svg class="google-g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11c-.5 2.5-2 4.6-4.2 6v5h6.8c4-3.7 6-9 6-14.7z"/><path fill="#34A853" d="M24 44c5.4 0 9.9-1.8 13.2-4.8l-6.8-5c-1.8 1.2-4 1.9-6.4 1.9-4.9 0-9.1-3.3-10.6-7.8H6.4v5.2C9.7 39.8 16.3 44 24 44z"/><path fill="#FBBC05" d="M13.4 28.3a12 12 0 0 1 0-8.6v-5.2H6.4a20 20 0 0 0 0 19z"/><path fill="#EA4335" d="M24 9.5c3 0 5.7 1 7.8 3.1l5.8-5.8C34.1 3.6 29.4 1.5 24 1.5c-7.7 0-14.3 4.2-17.6 10.4l6.9 5.2C14.9 12.8 19.1 9.5 24 9.5z"/></svg> Sign up with Google</button>
+          </div>
           <p class="auth-switch">Already have an account? <button class="text-button" id="show-sign-in-from-sign-up" type="button">Sign in</button></p>
         </section>
 
@@ -365,18 +372,35 @@
       });
     });
 
-    document.getElementById("google-sign-in").addEventListener("click", async (event) => {
-      const button = event.currentTarget;
-      if (!authClient) return;
-      await runAuthAction(button, async () => {
-        window.localStorage.setItem("form-function-remember-session", String(rememberCheckbox.checked));
-        const { error } = await authClient.auth.signInWithOAuth({
-          provider: "google",
-          options: { redirectTo: new URL("dashboard.html", window.location.href).href }
+    document.querySelectorAll("[data-google-auth]").forEach((googleButton) => {
+      googleButton.addEventListener("click", async (event) => {
+        const button = event.currentTarget;
+        if (!authClient) return;
+        await runAuthAction(button, async () => {
+          window.localStorage.setItem("form-function-remember-session", String(rememberCheckbox.checked));
+          const { error } = await authClient.auth.signInWithOAuth({
+            provider: "google",
+            options: { redirectTo: new URL("dashboard.html", window.location.href).href }
+          });
+          if (error) throw error;
         });
-        if (error) throw error;
       });
     });
+
+    // Only offer Google once it is switched on for the Supabase project, so the button never leads to an error page.
+    async function showGoogleIfEnabled(config) {
+      try {
+        const response = await fetch(new URL("/auth/v1/settings", config.supabaseUrl), {
+          headers: { apikey: config.supabaseAnonKey }
+        });
+        if (!response.ok) return;
+        const settings = await response.json();
+        const googleEnabled = Boolean(settings.external && settings.external.google);
+        document.querySelectorAll(".google-option").forEach((option) => { option.hidden = !googleEnabled; });
+      } catch (error) {
+        console.error("Could not check whether Google sign-in is enabled:", error);
+      }
+    }
 
     async function initializeAuth() {
       const config = window.FORM_FUNCTION_CONFIG;
@@ -390,6 +414,7 @@
         document.querySelectorAll("[data-auth-action]").forEach((button) => { button.disabled = true; });
         return;
       }
+      showGoogleIfEnabled(config);
       try {
         authClient = window.createFormFunctionClient();
         const { data, error } = await authClient.auth.getSession();
