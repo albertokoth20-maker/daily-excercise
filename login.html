@@ -80,6 +80,13 @@
       .auth-panel { padding: 27px 19px; }
       .password-row { align-items: flex-start; flex-direction: column; }
     }
+    /* iOS-style flip: login card turns away before opening the dashboard */
+    body.is-flipping-out { perspective: 1600px; overflow: hidden; }
+    body.is-flipping-out .auth-shell { animation: ff-flip-out .38s cubic-bezier(.55,.06,.68,.19) forwards; transform-origin: 50% 50%; backface-visibility: hidden; }
+    @keyframes ff-flip-out {
+      from { transform: rotateY(0deg) scale(1); opacity: 1; }
+      to { transform: rotateY(-90deg) scale(.92); opacity: .6; }
+    }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
     }
@@ -221,9 +228,31 @@
       }
     }
 
-    function redirectToDashboard() {
-      window.location.assign("dashboard.html");
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function redirectToDashboard(options = {}) {
+      const animate = options.animate !== false && !prefersReducedMotion;
+      if (!animate) {
+        window.location.assign("dashboard.html");
+        return;
+      }
+      try { window.sessionStorage.setItem("form-function-flip-in", "1"); } catch (error) { /* storage unavailable: dashboard simply won't flip in */ }
+      const shell = document.querySelector(".auth-shell");
+      let navigated = false;
+      const go = () => {
+        if (navigated) return;
+        navigated = true;
+        window.location.assign("dashboard.html");
+      };
+      shell.addEventListener("animationend", go, { once: true });
+      window.setTimeout(go, 600);
+      document.body.classList.add("is-flipping-out");
     }
+
+    // If the browser restores this page from the back/forward cache, show the card again.
+    window.addEventListener("pageshow", (event) => {
+      if (event.persisted) document.body.classList.remove("is-flipping-out");
+    });
 
     document.getElementById("show-sign-up").addEventListener("click", () => {
       showAuthView("sign-up-view", "Create your account", "We’ll email you a verification code to finish signing up.");
@@ -370,7 +399,7 @@
           }
         });
         if (data.session && !isRecoveryRedirect) {
-          redirectToDashboard();
+          redirectToDashboard({ animate: false });
           return;
         }
         if (isRecoveryRedirect) {

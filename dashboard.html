@@ -128,6 +128,31 @@
       html.scroll-reveal-ready [data-reveal] { opacity: 1; filter: none; transform: none; transition: none; }
     }
   </style>
+  <style>
+    /* iOS-style flip: dashboard turns into view after signing in */
+    html.flip-in body { perspective: 1600px; overflow-x: hidden; }
+    html.flip-in .shell { animation: ff-flip-in .46s cubic-bezier(.22,.61,.36,1) both; transform-origin: 50% 30vh; backface-visibility: hidden; }
+    @keyframes ff-flip-in {
+      from { transform: rotateY(90deg) scale(.92); opacity: .6; }
+      to { transform: rotateY(0deg) scale(1); opacity: 1; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html.flip-in .shell { animation: none; }
+    }
+  </style>
+  <script>
+    (() => {
+      try {
+        if (window.sessionStorage.getItem("form-function-flip-in") === "1") {
+          window.sessionStorage.removeItem("form-function-flip-in");
+          document.documentElement.classList.add("flip-in");
+          document.addEventListener("animationend", (event) => {
+            if (event.target.classList && event.target.classList.contains("shell")) document.documentElement.classList.remove("flip-in");
+          });
+        }
+      } catch (error) { /* storage unavailable: skip the flip */ }
+    })();
+  </script>
   <script src="assets/reveal.js" defer></script>
 </head>
 <body>
