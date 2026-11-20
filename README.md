@@ -19,7 +19,8 @@ It also includes a login experience and optional daily workout reminders through
 - Custom workout timer from 1 to 180 minutes
 - Pause, resume, reset, and early-stop support
 - Progress dashboard with recent workouts and seven-day activity
-- Reveal-on-scroll page animations
+- Blur-in reveal animations as sections scroll into view
+- 3D flip transition with motion blur from sign-in to the dashboard
 - Supabase email sign-in, sign-up verification, Google OAuth, and password reset
 - Daily email and browser push-reminder settings
 - Installable PWA experience with offline app-shell caching
@@ -36,7 +37,7 @@ assets/
   app-config.js                  Public Supabase/PWA configuration
   supabase-client.js             Supabase browser client
   pwa.js                         Install and service-worker setup
-  reveal.js                      Scroll-reveal behavior
+  reveal.js                      Scroll-reveal and parallax behavior
   login-athlete-background.png   Login page background
   login-athlete.jpg              Login card athlete image
   login-glass-background.png     Alternative glass-morphism background
@@ -88,6 +89,12 @@ Never place a Supabase service-role key, Resend API key, VAPID private key, or c
 4. Choose the reminder time and delivery methods.
 5. Install the app from the browser menu.
 6. Grant notification permission and enable push on the device.
+
+## Animations
+
+Sections on the workout planner and dashboard fade in from a blur as they enter the viewport. After signing in with email or a verification code, the login card flips away and the dashboard flips in, with a blur that peaks mid-turn.
+
+Both effects are turned off when the device has reduced motion enabled. Signing in with Google and returning to the login page while already signed in skip the flip.
 
 ## Browser support
 

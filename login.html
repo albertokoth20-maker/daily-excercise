@@ -82,10 +82,11 @@
     }
     /* iOS-style flip: login card turns away before opening the dashboard */
     body.is-flipping-out { perspective: 1600px; overflow: hidden; }
-    body.is-flipping-out .auth-shell { animation: ff-flip-out .38s cubic-bezier(.55,.06,.68,.19) forwards; transform-origin: 50% 50%; backface-visibility: hidden; }
+    body.is-flipping-out .auth-shell { will-change: transform, filter, opacity; animation: ff-flip-out .42s cubic-bezier(.55,.06,.68,.19) forwards; transform-origin: 50% 50%; backface-visibility: hidden; }
     @keyframes ff-flip-out {
-      from { transform: rotateY(0deg) scale(1); opacity: 1; }
-      to { transform: rotateY(-90deg) scale(.92); opacity: .6; }
+      from { transform: rotateY(0deg) scale(1); opacity: 1; filter: blur(0); }
+      55% { filter: blur(4px); }
+      to { transform: rotateY(-90deg) scale(.9); opacity: .55; filter: blur(14px); }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }

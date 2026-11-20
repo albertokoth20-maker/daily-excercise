@@ -131,10 +131,11 @@
   <style>
     /* iOS-style flip: dashboard turns into view after signing in */
     html.flip-in body { perspective: 1600px; overflow-x: hidden; }
-    html.flip-in .shell { animation: ff-flip-in .46s cubic-bezier(.22,.61,.36,1) both; transform-origin: 50% 30vh; backface-visibility: hidden; }
+    html.flip-in .shell { will-change: transform, filter, opacity; animation: ff-flip-in .52s cubic-bezier(.22,.61,.36,1) both; transform-origin: 50% 30vh; backface-visibility: hidden; }
     @keyframes ff-flip-in {
-      from { transform: rotateY(90deg) scale(.92); opacity: .6; }
-      to { transform: rotateY(0deg) scale(1); opacity: 1; }
+      from { transform: rotateY(90deg) scale(.9); opacity: .55; filter: blur(14px); }
+      45% { filter: blur(4px); }
+      to { transform: rotateY(0deg) scale(1); opacity: 1; filter: blur(0); }
     }
     @media (prefers-reduced-motion: reduce) {
       html.flip-in .shell { animation: none; }
