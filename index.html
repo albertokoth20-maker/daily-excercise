@@ -120,6 +120,16 @@
     .nutrition-footnote { margin: 15px 0 0; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.14); color: #bbcbc0; font-size: 9px; line-height: 1.55; }
     .meal-plate { width: 144px; height: 144px; display: grid; grid-template-columns: repeat(2, 1fr); align-content: center; justify-items: center; gap: 2px; margin: 0 auto 17px; padding: 14px; border: 7px solid #e4e1dc; border-radius: 50%; background: #f7f4ed; box-shadow: 0 7px 16px rgba(11,10,16,.3), inset 0 0 0 2px #cbc6bd; }
     .meal-plate span { display: grid; width: 48px; height: 48px; place-items: center; border-radius: 50%; background: #ebe6da; font-size: 27px; }
+    .meal-plate .plate-portion { overflow: hidden; box-shadow: 0 2px 5px rgba(40,30,20,.28), inset 0 0 0 1px rgba(0,0,0,.06); }
+    .meal-plate .plate-portion:first-child { grid-column: 1 / -1; }
+    .meal-plate img, .food-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .food-item:has(.food-photo) { grid-template-columns: 44px 1fr; }
+    .food-emoji.food-photo { width: 40px; height: 40px; overflow: hidden; border-radius: 11px; padding: 0; }
+    .photo-credits { margin-top: 10px; color: #bdb4c3; font-size: 10px; line-height: 1.5; }
+    .photo-credits summary { cursor: pointer; width: fit-content; }
+    .photo-credits ul { margin: 6px 0 4px; padding-left: 16px; }
+    .photo-credits a { color: inherit; }
+    .photo-credits p { margin: 0; }
     .safety-note { display: flex; gap: 9px; align-items: flex-start; margin: 15px 0 0; color: #748078; font-size: 10px; line-height: 1.55; }
     .safety-note span { color: #7b925a; }
 
@@ -812,13 +822,15 @@
               </div>
             </div>
             <p class="nutrition-intro" id="nutrition-intro">A practical post-workout meal idea with flexible portions.</p>
-            <div class="meal-plate" id="meal-plate" role="img" aria-label="Meal plate with grilled chicken, sweet potato, green vegetables, and tomatoes"></div>
+            <div class="meal-plate" id="meal-plate" role="img" aria-label="Meal plate"></div>
             <div class="food-list" id="food-list">
-              <div class="food-item"><span class="food-emoji" aria-hidden="true">🍗</span><div><strong>Grilled chicken · 1 palm</strong><span>Tofu or beans work as alternatives.</span></div></div>
-              <div class="food-item"><span class="food-emoji" aria-hidden="true">🍠</span><div><strong>Sweet potato · 1 cupped hand</strong><span>Rice or regular potatoes are also options.</span></div></div>
-              <div class="food-item"><span class="food-emoji" aria-hidden="true">🥦</span><div><strong>Vegetables · 1–2 fists</strong><span>Try broccoli and tomatoes, fresh or frozen.</span></div></div>
             </div>
             <p class="nutrition-footnote">Adjust portions to your appetite and routine. These are flexible ideas, not prescriptions; drink water to thirst.</p>
+            <details class="photo-credits">
+              <summary>Photo credits</summary>
+              <ul id="photo-credits-list"></ul>
+              <p>Food photos from Wikimedia Commons.</p>
+            </details>
           </aside>
         </div>
         <p class="safety-note"><span aria-hidden="true">ⓘ</span><span>Start with a comfortable effort, move with control, and stop if you feel pain, dizziness, or unwell. If you have an injury, health condition, or specific nutrition needs, ask a qualified professional for personal guidance.</span></p>
@@ -890,59 +902,77 @@
       }
     };
 
+    const foodPhotos = {
+      tilapia: { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Tilapia_Fish_from_Lake_Victoria.jpg/250px-Tilapia_Fish_from_Lake_Victoria.jpg", alt: "Two fried tilapia fish", credit: "VickyOmondi", license: "CC BY 4.0", source: "https://commons.wikimedia.org/wiki/File:Tilapia_Fish_from_Lake_Victoria.jpg" },
+      ugali: { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Ugali_%26_Sukuma_Wiki.jpg/250px-Ugali_%26_Sukuma_Wiki.jpg", alt: "A mound of white ugali on a plate", credit: "Paresh Jai", license: "CC BY 2.0", source: "https://commons.wikimedia.org/wiki/File:Ugali_%26_Sukuma_Wiki.jpg" },
+      sukuma: { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Sukuma_wiki.jpg/250px-Sukuma_wiki.jpg", alt: "A pan of chopped sukuma wiki", credit: "Nana Pearls", license: "CC0", source: "https://commons.wikimedia.org/wiki/File:Sukuma_wiki.jpg" },
+      nyama: { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Nyama_choma_barbeque.jpg/250px-Nyama_choma_barbeque.jpg", alt: "Pieces of grilled nyama choma", credit: "safaritravelplus", license: "CC0", source: "https://commons.wikimedia.org/wiki/File:Nyama_choma_barbeque.jpg" },
+      kachumbari: { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/East_African_Garnish_Kachumbari.jpg/250px-East_African_Garnish_Kachumbari.jpg", alt: "A bowl of tomato and onion kachumbari", credit: "safaritravelplus", license: "CC0", source: "https://commons.wikimedia.org/wiki/File:East_African_Garnish_Kachumbari.jpg" },
+      githeri: { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Githeri_Meal.jpg/250px-Githeri_Meal.jpg", alt: "A bowl of githeri with maize and beans", credit: "safaritravelplus", license: "CC0", source: "https://commons.wikimedia.org/wiki/File:Githeri_Meal.jpg" },
+      avocado: { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Liat_Portal_for_Foodie_Disorder_-_Avocado_halves.jpg/250px-Liat_Portal_for_Foodie_Disorder_-_Avocado_halves.jpg", alt: "Two avocado halves", credit: "HaJunkiyada", license: "CC BY-SA 4.0", source: "https://commons.wikimedia.org/wiki/File:Liat_Portal_for_Foodie_Disorder_-_Avocado_halves.jpg" },
+      chickenstew: { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Fried_Chicken_stew.jpg/250px-Fried_Chicken_stew.jpg", alt: "Chicken pieces in stew", credit: "Halima Waziri", license: "CC BY-SA 4.0", source: "https://commons.wikimedia.org/wiki/File:Fried_Chicken_stew.jpg" },
+      matoke: { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Cooked_Matooke.jpg/250px-Cooked_Matooke.jpg", alt: "Cooked matoke with avocado", credit: "Zahara5555", license: "CC BY-SA 4.0", source: "https://commons.wikimedia.org/wiki/File:Cooked_Matooke.jpg" },
+      greens: { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/East_African_Vegetable_%28Sukuma_wiki%29.jpg/250px-East_African_Vegetable_%28Sukuma_wiki%29.jpg", alt: "A pan of cooked greens", credit: "Nana Pearls", license: "CC0", source: "https://commons.wikimedia.org/wiki/File:East_African_Vegetable_(Sukuma_wiki).jpg" },
+      ndengu: { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Mung_Bean_Curry_-_Kolkata_2011-03-10_1981.JPG/250px-Mung_Bean_Curry_-_Kolkata_2011-03-10_1981.JPG", alt: "Green gram stew", credit: "Biswarup Ganguly", license: "CC BY 3.0", source: "https://commons.wikimedia.org/wiki/File:Mung_Bean_Curry_-_Kolkata_2011-03-10_1981.JPG" },
+      chapati: { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Chapati_kenya.jpg/250px-Chapati_kenya.jpg", alt: "A stack of chapati", credit: "safaritravelplus", license: "CC0", source: "https://commons.wikimedia.org/wiki/File:Chapati_kenya.jpg" },
+      spinach: { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Fresh_Spinach_leaves.jpg/250px-Fresh_Spinach_leaves.jpg", alt: "Fresh spinach leaves", credit: "Charipearl", license: "CC BY-SA 4.0", source: "https://commons.wikimedia.org/wiki/File:Fresh_Spinach_leaves.jpg" },
+      mukimo: { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Mukimo_%26_Beef_Stew.jpg/250px-Mukimo_%26_Beef_Stew.jpg", alt: "Mukimo served with stew", credit: "Anitah Pezz", license: "CC BY-SA 4.0", source: "https://commons.wikimedia.org/wiki/File:Mukimo_%26_Beef_Stew.jpg" },
+      beans: { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Pinto_Beans_Seeds.jpg/250px-Pinto_Beans_Seeds.jpg", alt: "A pile of dried beans", credit: "Sanjay Acharya", license: "CC BY-SA 4.0", source: "https://commons.wikimedia.org/wiki/File:Pinto_Beans_Seeds.jpg" }
+    };
+
     const mealPlans = {
       upper: {
         title: "Tilapia, ugali & sukuma wiki",
-        plate: ["🐟", "🌽", "🥬", "🍅"],
+        plate: ["tilapia", "ugali", "sukuma"],
         foods: [
-          ["🐟", "Grilled tilapia · 1 palm", "Beans or eggs are alternatives."],
-          ["🌽", "Ugali · 1 cupped hand", "Adjust the portion to your appetite and session."],
-          ["🥬", "Sukuma wiki · 1–2 fists", "Tomato and onion add familiar flavor."]
+          ["tilapia", "Grilled tilapia · 1 palm", "Beans or eggs are alternatives."],
+          ["ugali", "Ugali · 1 cupped hand", "Adjust the portion to your appetite and session."],
+          ["sukuma", "Sukuma wiki · 1–2 fists", "Tomato and onion add familiar flavor."]
         ]
       },
       chest: {
         title: "Nyama choma, ugali & kachumbari",
-        plate: ["🥩", "🌽", "🍅", "🧅"],
+        plate: ["nyama", "ugali", "kachumbari"],
         foods: [
-          ["🥩", "Lean nyama choma · 1 palm", "Choose a less fatty cut when available."],
-          ["🌽", "Ugali · 1 cupped hand", "Rice or boiled potatoes can also work."],
-          ["🍅", "Kachumbari · 1–2 fists", "Tomato, onion, and fresh coriander."]
+          ["nyama", "Lean nyama choma · 1 palm", "Choose a less fatty cut when available."],
+          ["ugali", "Ugali · 1 cupped hand", "Rice or boiled potatoes can also work."],
+          ["kachumbari", "Kachumbari · 1–2 fists", "Tomato, onion, and fresh coriander."]
         ]
       },
       core: {
         title: "Githeri, avocado & sukuma wiki",
-        plate: ["🫘", "🌽", "🥑", "🥬"],
+        plate: ["githeri", "avocado", "sukuma"],
         foods: [
-          ["🫘", "Githeri · 1–2 cupped hands", "Maize and beans provide both energy and plant protein."],
-          ["🥑", "Avocado · ¼–½ fruit", "A flexible amount to suit your appetite."],
-          ["🥬", "Sukuma wiki · 1–2 fists", "Add tomato and onion if you like."]
+          ["githeri", "Githeri · 1–2 cupped hands", "Maize and beans provide both energy and plant protein."],
+          ["avocado", "Avocado · ¼–½ fruit", "A flexible amount to suit your appetite."],
+          ["sukuma", "Sukuma wiki · 1–2 fists", "Add tomato and onion if you like."]
         ]
       },
       legs: {
         title: "Chicken stew, matoke & greens",
-        plate: ["🍗", "🍌", "🥬", "🍅"],
+        plate: ["chickenstew", "matoke", "greens"],
         foods: [
-          ["🍗", "Chicken stew · 1 palm", "Beans or eggs are alternatives."],
-          ["🍌", "Matoke · 1 cupped hand", "Green bananas cooked until tender."],
-          ["🥬", "Greens · 1–2 fists", "Sukuma wiki or spinach with tomato."]
+          ["chickenstew", "Chicken stew · 1 palm", "Beans or eggs are alternatives."],
+          ["matoke", "Matoke · 1 cupped hand", "Green bananas cooked until tender."],
+          ["greens", "Greens · 1–2 fists", "Sukuma wiki or spinach with tomato."]
         ]
       },
       glutes: {
         title: "Ndengu stew, chapati & spinach",
-        plate: ["🫘", "🫓", "🥬", "🍅"],
+        plate: ["ndengu", "chapati", "spinach"],
         foods: [
-          ["🫘", "Ndengu stew · about 1 palm", "Green grams simmered with tomato and onion."],
-          ["🫓", "Chapati · 1 piece", "Choose a smaller or larger portion to suit your needs."],
-          ["🥬", "Spinach · 1–2 fists", "Sukuma wiki is another local greens option."]
+          ["ndengu", "Ndengu stew · about 1 palm", "Green grams simmered with tomato and onion."],
+          ["chapati", "Chapati · 1 piece", "Choose a smaller or larger portion to suit your needs."],
+          ["spinach", "Spinach · 1–2 fists", "Sukuma wiki is another local greens option."]
         ]
       },
       full: {
         title: "Mukimo, beans & kachumbari",
-        plate: ["🥔", "🌽", "🫘", "🍅"],
+        plate: ["mukimo", "beans", "kachumbari"],
         foods: [
-          ["🥔", "Mukimo · 1–2 cupped hands", "Mashed potato, maize, and greens."],
-          ["🫘", "Beans · about 1 palm", "Serve with or alongside the mukimo."],
-          ["🍅", "Kachumbari · 1–2 fists", "Tomato and onion add a fresh vegetable side."]
+          ["mukimo", "Mukimo · 1–2 cupped hands", "Mashed potato, maize, and greens."],
+          ["beans", "Beans · about 1 palm", "Serve with or alongside the mukimo."],
+          ["kachumbari", "Kachumbari · 1–2 fists", "Tomato and onion add a fresh vegetable side."]
         ]
       }
     };
@@ -1075,13 +1105,21 @@
       document.getElementById("nutrition-title").textContent = meal.title;
       document.getElementById("nutrition-intro").textContent = `A flexible meal idea for your ${plan.title.toLowerCase()} session.`;
       const mealPlate = document.getElementById("meal-plate");
-      mealPlate.innerHTML = meal.plate.map((food) => `<span aria-hidden="true">${food}</span>`).join("");
+      mealPlate.innerHTML = meal.plate.map((key) => `<span class="plate-portion"><img src="${foodPhotos[key].src}" alt="" width="48" height="48" loading="lazy" decoding="async"></span>`).join("");
       mealPlate.setAttribute("aria-label", `Plate showing ${meal.title}`);
       document.getElementById("food-list").innerHTML = meal.foods.map((food) => `
         <div class="food-item">
-          <span class="food-emoji" aria-hidden="true">${food[0]}</span>
+          <span class="food-emoji food-photo"><img src="${foodPhotos[food[0]].src}" alt="${foodPhotos[food[0]].alt}" width="40" height="40" loading="lazy" decoding="async"></span>
           <div><strong>${food[1]}</strong><span>${food[2]}</span></div>
         </div>`).join("");
+      const creditKeys = [...new Set([...meal.plate, ...meal.foods.map((food) => food[0])])];
+      document.getElementById("photo-credits-list").innerHTML = creditKeys.map((key) => {
+        const photo = foodPhotos[key];
+        return `<li><a href="${photo.source}" target="_blank" rel="noopener">${photo.alt}</a> by ${photo.credit}, ${photo.license}</li>`;
+      }).join("");
+      document.querySelectorAll(".meal-plate img, .food-photo img").forEach((image) => {
+        image.addEventListener("error", () => { image.hidden = true; }, { once: true });
+      });
       document.querySelectorAll(".body-choice").forEach((button) => {
         button.querySelector(".body-photo").src = demoPhotos[selectedCategory][button.dataset.focus].src;
       });

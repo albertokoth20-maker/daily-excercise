@@ -15,7 +15,7 @@ It also includes a login experience and optional daily workout reminders through
   - Full body
 - Separate men's and women's exercise-photo views
 - Exercise equipment, sets, repetitions, and duration guidance
-- Flexible meal and portion suggestions
+- Flexible meal and portion suggestions with food photos
 - Custom workout timer from 1 to 180 minutes
 - Pause, resume, reset, and early-stop support
 - Progress dashboard with recent workouts and seven-day activity
@@ -89,6 +89,12 @@ Never place a Supabase service-role key, Resend API key, VAPID private key, or c
 4. Choose the reminder time and delivery methods.
 5. Install the app from the browser menu.
 6. Grant notification permission and enable push on the device.
+
+## Food photos
+
+The meal plates and food lists use photos from [Wikimedia Commons](https://commons.wikimedia.org/), shared under CC0 or Creative Commons licenses. Each meal lists its photo authors and licenses under **Photo credits** in the nutrition panel.
+
+The photos load from Wikimedia's servers. Once viewed, the service worker keeps a copy so they still appear offline.
 
 ## Animations
 
