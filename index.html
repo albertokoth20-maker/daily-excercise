@@ -118,6 +118,8 @@
     .food-item strong { display: block; margin: 1px 0 3px; color: #f4f6ed; font-size: 10px; }
     .food-item span { display: block; color: #c4d2c8; font-size: 9px; line-height: 1.45; }
     .nutrition-footnote { margin: 15px 0 0; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.14); color: #bbcbc0; font-size: 9px; line-height: 1.55; }
+    .meal-plate { width: 144px; height: 144px; display: grid; grid-template-columns: repeat(2, 1fr); align-content: center; justify-items: center; gap: 2px; margin: 0 auto 17px; padding: 14px; border: 7px solid #e4e1dc; border-radius: 50%; background: #f7f4ed; box-shadow: 0 7px 16px rgba(11,10,16,.3), inset 0 0 0 2px #cbc6bd; }
+    .meal-plate span { display: grid; width: 48px; height: 48px; place-items: center; border-radius: 50%; background: #ebe6da; font-size: 27px; }
     .safety-note { display: flex; gap: 9px; align-items: flex-start; margin: 15px 0 0; color: #748078; font-size: 10px; line-height: 1.55; }
     .safety-note span { color: #7b925a; }
 
@@ -130,10 +132,7 @@
       .selector-row { grid-template-columns: 1fr; gap: 20px; }
       .gender-wrap { max-width: 300px; }
       .plan-layout { grid-template-columns: 1fr; }
-      .nutrition-panel { display: grid; grid-template-columns: 1fr 1.2fr; column-gap: 22px; }
-      .nutrition-intro { grid-column: 1; }
-      .food-list { grid-column: 2; grid-row: 1 / span 2; }
-      .nutrition-footnote { grid-column: 1 / -1; }
+      .nutrition-panel { display: block; }
     }
     @media (max-width: 620px) {
       .shell { width: calc(100% - 34px); }
@@ -224,6 +223,7 @@
       background-position: center 48%;
       box-shadow: 0 24px 70px rgba(0, 0, 0, .3);
     }
+    .hero-art[data-parallax] { background-position: center, center calc(48% + var(--parallax-offset, 0px)); }
     .hero-art::before { background: linear-gradient(90deg, rgba(3, 10, 7, .08), transparent 62%), linear-gradient(0deg, rgba(2, 8, 7, .35), transparent 50%); }
     .art-label { border-color: rgba(176, 255, 119, .34); background: rgba(5, 18, 9, .8); color: var(--lime); }
     .art-caption { border-color: rgba(173, 255, 101, .2); background: rgba(5, 15, 8, .76); color: #f4ffe9; }
@@ -680,7 +680,7 @@
             </div>
           </div>
         </div>
-        <div class="hero-art" aria-label="Runner in motion against a teal background" role="img">
+        <div class="hero-art" data-parallax aria-label="Runner in motion against a teal background" role="img">
           <span class="art-label">Move with intention</span>
           <span class="art-caption">Find your pace, then build on it.</span>
         </div>
@@ -808,18 +808,17 @@
             <div class="nutrition-head">
               <div>
                 <div class="workout-kicker">Fuel your movement</div>
-                <h3 id="nutrition-title">A balanced plate</h3>
+                <h3 id="nutrition-title">Chicken &amp; sweet potato plate</h3>
               </div>
-              <span class="nutrition-icon" aria-hidden="true">✳</span>
             </div>
-            <p class="nutrition-intro">Everyday food ideas to support your training. Choose what works for your appetite and needs.</p>
-            <div class="food-list">
-              <div class="food-item"><span class="food-emoji" aria-hidden="true">🥚</span><div><strong>Protein · about 1 palm</strong><span>Eggs, beans, tofu, yogurt, fish, or chicken. A serving around 20–30 g protein is a useful general guide.</span></div></div>
-              <div class="food-item"><span class="food-emoji" aria-hidden="true">🍚</span><div><strong>Energy · 1 cupped hand</strong><span>Rice, oats, potatoes, bread, or fruit. Add a little more if you’re hungry or training longer.</span></div></div>
-              <div class="food-item"><span class="food-emoji" aria-hidden="true">🥬</span><div><strong>Color · 1–2 fists</strong><span>Any vegetables or fruit you enjoy—fresh, frozen, or canned all count.</span></div></div>
-              <div class="food-item"><span class="food-emoji" aria-hidden="true">💧</span><div><strong>Fluids · sip to thirst</strong><span>Water is usually enough. Drink regularly and more in heat or during longer sessions.</span></div></div>
+            <p class="nutrition-intro" id="nutrition-intro">A practical post-workout meal idea with flexible portions.</p>
+            <div class="meal-plate" id="meal-plate" role="img" aria-label="Meal plate with grilled chicken, sweet potato, green vegetables, and tomatoes"></div>
+            <div class="food-list" id="food-list">
+              <div class="food-item"><span class="food-emoji" aria-hidden="true">🍗</span><div><strong>Grilled chicken · 1 palm</strong><span>Tofu or beans work as alternatives.</span></div></div>
+              <div class="food-item"><span class="food-emoji" aria-hidden="true">🍠</span><div><strong>Sweet potato · 1 cupped hand</strong><span>Rice or regular potatoes are also options.</span></div></div>
+              <div class="food-item"><span class="food-emoji" aria-hidden="true">🥦</span><div><strong>Vegetables · 1–2 fists</strong><span>Try broccoli and tomatoes, fresh or frozen.</span></div></div>
             </div>
-            <p class="nutrition-footnote">Have a meal or snack with carbs and protein within a few hours of training if it suits your routine. Portion needs vary; these are flexible starting points, not prescriptions.</p>
+            <p class="nutrition-footnote">Adjust portions to your appetite and routine. These are flexible ideas, not prescriptions; drink water to thirst.</p>
           </aside>
         </div>
         <p class="safety-note"><span aria-hidden="true">ⓘ</span><span>Start with a comfortable effort, move with control, and stop if you feel pain, dizziness, or unwell. If you have an injury, health condition, or specific nutrition needs, ask a qualified professional for personal guidance.</span></p>
@@ -887,6 +886,63 @@
           ["Chair squat", "Sit hips back toward a chair, then stand tall. Keep your knees comfortable.", "3 × 10–12 · ~4 min"],
           ["Incline push-up", "Hands on a sturdy counter; keep your body in one line as you lower and press.", "3 × 8–12 · ~4 min"],
           ["Hip hinge", "Soften knees, push hips back with a long spine, then stand and squeeze gently.", "3 × 10–12 · ~4 min"]
+        ]
+      }
+    };
+
+    const mealPlans = {
+      upper: {
+        title: "Tilapia, ugali & sukuma wiki",
+        plate: ["🐟", "🌽", "🥬", "🍅"],
+        foods: [
+          ["🐟", "Grilled tilapia · 1 palm", "Beans or eggs are alternatives."],
+          ["🌽", "Ugali · 1 cupped hand", "Adjust the portion to your appetite and session."],
+          ["🥬", "Sukuma wiki · 1–2 fists", "Tomato and onion add familiar flavor."]
+        ]
+      },
+      chest: {
+        title: "Nyama choma, ugali & kachumbari",
+        plate: ["🥩", "🌽", "🍅", "🧅"],
+        foods: [
+          ["🥩", "Lean nyama choma · 1 palm", "Choose a less fatty cut when available."],
+          ["🌽", "Ugali · 1 cupped hand", "Rice or boiled potatoes can also work."],
+          ["🍅", "Kachumbari · 1–2 fists", "Tomato, onion, and fresh coriander."]
+        ]
+      },
+      core: {
+        title: "Githeri, avocado & sukuma wiki",
+        plate: ["🫘", "🌽", "🥑", "🥬"],
+        foods: [
+          ["🫘", "Githeri · 1–2 cupped hands", "Maize and beans provide both energy and plant protein."],
+          ["🥑", "Avocado · ¼–½ fruit", "A flexible amount to suit your appetite."],
+          ["🥬", "Sukuma wiki · 1–2 fists", "Add tomato and onion if you like."]
+        ]
+      },
+      legs: {
+        title: "Chicken stew, matoke & greens",
+        plate: ["🍗", "🍌", "🥬", "🍅"],
+        foods: [
+          ["🍗", "Chicken stew · 1 palm", "Beans or eggs are alternatives."],
+          ["🍌", "Matoke · 1 cupped hand", "Green bananas cooked until tender."],
+          ["🥬", "Greens · 1–2 fists", "Sukuma wiki or spinach with tomato."]
+        ]
+      },
+      glutes: {
+        title: "Ndengu stew, chapati & spinach",
+        plate: ["🫘", "🫓", "🥬", "🍅"],
+        foods: [
+          ["🫘", "Ndengu stew · about 1 palm", "Green grams simmered with tomato and onion."],
+          ["🫓", "Chapati · 1 piece", "Choose a smaller or larger portion to suit your needs."],
+          ["🥬", "Spinach · 1–2 fists", "Sukuma wiki is another local greens option."]
+        ]
+      },
+      full: {
+        title: "Mukimo, beans & kachumbari",
+        plate: ["🥔", "🌽", "🫘", "🍅"],
+        foods: [
+          ["🥔", "Mukimo · 1–2 cupped hands", "Mashed potato, maize, and greens."],
+          ["🫘", "Beans · about 1 palm", "Serve with or alongside the mukimo."],
+          ["🍅", "Kachumbari · 1–2 fists", "Tomato and onion add a fresh vegetable side."]
         ]
       }
     };
@@ -1007,6 +1063,7 @@
 
     function renderPlan() {
       const plan = plans[selectedFocus];
+      const meal = mealPlans[selectedFocus];
       const categoryLabel = selectedCategory === "women" ? "Women" : "Men";
       const selectedPhoto = demoPhotos[selectedCategory][selectedFocus];
       document.getElementById("plan-category").textContent = `${categoryLabel} · Strength`;
@@ -1015,6 +1072,16 @@
       document.getElementById("plan-photo").src = selectedPhoto.src;
       document.getElementById("plan-photo").alt = selectedPhoto.alt;
       document.getElementById("photo-caption").textContent = `${categoryLabel} · ${plan.title}`;
+      document.getElementById("nutrition-title").textContent = meal.title;
+      document.getElementById("nutrition-intro").textContent = `A flexible meal idea for your ${plan.title.toLowerCase()} session.`;
+      const mealPlate = document.getElementById("meal-plate");
+      mealPlate.innerHTML = meal.plate.map((food) => `<span aria-hidden="true">${food}</span>`).join("");
+      mealPlate.setAttribute("aria-label", `Plate showing ${meal.title}`);
+      document.getElementById("food-list").innerHTML = meal.foods.map((food) => `
+        <div class="food-item">
+          <span class="food-emoji" aria-hidden="true">${food[0]}</span>
+          <div><strong>${food[1]}</strong><span>${food[2]}</span></div>
+        </div>`).join("");
       document.querySelectorAll(".body-choice").forEach((button) => {
         button.querySelector(".body-photo").src = demoPhotos[selectedCategory][button.dataset.focus].src;
       });

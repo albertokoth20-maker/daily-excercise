@@ -1,4 +1,4 @@
-const CACHE_NAME = "form-function-shell-v5";
+const CACHE_NAME = "form-function-shell-v9";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -13,6 +13,7 @@ const APP_SHELL = [
   "./assets/login-athlete.jpg",
   "./assets/login-glass-background.png",
   "./assets/login-athlete-background.png",
+  "./assets/login-morphism-glass.png",
   "./assets/runner-background.png",
   "./assets/exercises/women-upper.jpg",
   "./assets/exercises/women-chest.jpg",
