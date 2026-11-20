@@ -93,8 +93,8 @@
     .account-message { min-height: 20px; margin: 0; color: #e8f4c4; font-size: 12px; line-height: 1.5; }
     .bottom-note { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 0 35px; border-top: 1px solid rgba(255,255,255,.07); color: #aaa4b3; font-size: 12px; }
     .bottom-note strong { color: #ece5f1; }
-    html.scroll-reveal-ready [data-reveal] { opacity: 0; transform: translateY(22px); transition: opacity .65s ease, transform .65s ease; }
-    html.scroll-reveal-ready [data-reveal].is-revealed { opacity: 1; transform: translateY(0); }
+    html.scroll-reveal-ready [data-reveal] { opacity: 0; filter: blur(14px); transform: translateY(22px) scale(.985); transition: opacity .8s ease, filter .9s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); will-change: opacity, filter, transform; }
+    html.scroll-reveal-ready [data-reveal].is-revealed { opacity: 1; filter: none; transform: translateY(0); will-change: auto; }
     @media (max-width: 900px) {
       .dashboard-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .dashboard-panels { grid-template-columns: 1fr; }
@@ -125,7 +125,7 @@
       .bottom-note { align-items: flex-start; flex-direction: column; gap: 8px; }
     }
     @media (prefers-reduced-motion: reduce) {
-      html.scroll-reveal-ready [data-reveal] { opacity: 1; transform: none; transition: none; }
+      html.scroll-reveal-ready [data-reveal] { opacity: 1; filter: none; transform: none; transition: none; }
     }
   </style>
   <script src="assets/reveal.js" defer></script>
